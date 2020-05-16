@@ -1,0 +1,14 @@
+{
+  "mainfest_version": 2,
+  "name": "Merriam's Book",
+  "version": "0.1",
+
+  "description": "Allows you to easily look up words on webpages in Merriam-Webster's dictionary.",
+
+  "content_scripts": [
+    {
+      "matches": ["*"],
+      "js": ["main.js"]
+    }
+  ]
+}
