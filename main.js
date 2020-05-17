@@ -1,17 +1,30 @@
 "use strict";
 
+var definitionElement = null;
+var isHidden = true;
+
 browser.runtime.onMessage.addListener(request => {
   console.log("Message from the background script:");
   console.log(request.content);
-  createPopup(request.content);
+  if (definitionElement == null) {
+    createDefinitionElement(request.content);
+  } 
+  fillDefinitionElement(request.content);
   return Promise.resolve({response: "Hi from content script"});
 });
 
-function createPopup(dictEntry) {
-  // Extract the content we need
-  const word = dictEntry["meta"]["id"];
-  const short = dictEntry["shortdef"];
-
+/*
+ * HTML layout:
+ *    <div>
+ *      <dl>
+ *        <dt> WORD </dt>
+ *        <dd> DEF 1 </dd>
+ *        <dd> DEF 2 </dd>
+ *             . . .
+ *      </dl>
+ *    </div>
+ */
+function createDefinitionElement() {
   // Find coordinates of word on page
   // const position = getSelectionCoords(window);
   const selection = window.getSelection();
@@ -20,18 +33,46 @@ function createPopup(dictEntry) {
   const parentAnchor = anchor.parentNode;
   const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
 
-  // Create the node
-  var node = document.createElement("div");
-  var content = document.createTextNode(word + "\n\n" + short[0]);
-  node.appendChild(content);
+  /* 
+   * Create the element
+   * We leave the definitions in the <dt> tag undefined, since the number of definitions
+   * changes for each word.
+   */
+  var container = document.createElement("div");
+  var definitionList = document.createElement("dl");
+  var word = document.createElement("dt");
+  var definition = document.createElement("dd");
+  container.appendChild(definitionList);
+  definitionList.appendChild(word);
+  definitionList.appendChild(definition);
 
-  node.style.position = "absolute";
-  node.style.left = `${boundingRect.x + window.scrollX - 0.5 * node.clientWidth}px`;
-  node.style.top = `${boundingRect.y + window.scrollY}px`;
-  node.style.border = "solid red 20px";
-  
-  // parentAnchor.insertBefore(node, anchor);
-  document.body.append(node);
+
+  // Style the element
+  container.style.position = "absolute";
+  container.style.border = "solid red 20px";
+  container.style.visibility = "hidden";
+
+  // Update our global variable
+  definitionElement = { container: container, word: word, definition: definition };
+  document.body.append(definitionElement.container);
+}
+
+function fillDefinitionElement(dictEntry) {
+  // Extract the content we need
+  const word = dictEntry["meta"]["id"];
+  const short = dictEntry["shortdef"];
+
+  // Fill the existing definition element
+  definitionElement.word.innerHTML = word;
+  definitionElement.definition.innerHTML = short;
+
+  // Style the element
+  const selection = window.getSelection();
+  const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
+  definitionElement.container.style.left = `${boundingRect.x + window.scrollX - 0.5 * boundingRect.width}px`;
+  definitionElement.container.style.top = `${boundingRect.y + window.scrollY - 0.5 * boundingRect.height}px`;
+
+  toggleVisibility();
 }
 
 // From https://stackoverflow.com/questions/6846230/coordinates-of-selected-text-in-browser-page 
@@ -63,4 +104,13 @@ function getSelectionCoords(win) {
     }
   }
   return {x: x, y: y};
+}
+
+function toggleVisibility() {
+  if (isHidden) {
+    definitionElement.container.style.visibility = "visible";
+  } else {
+    definitionElement.container.style.visibility = "hidden";
+  }
+  isHidden = !isHidden;
 }
