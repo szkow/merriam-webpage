@@ -3,6 +3,8 @@
 var definitionElement = null;
 var isHidden = true;
 
+document.addEventListener("click", handleClick);
+
 browser.runtime.onMessage.addListener(request => {
   console.log("Message from the background script:");
   console.log(request.content);
@@ -49,11 +51,15 @@ function createDefinitionElement() {
 
   // Style the element
   container.style.position = "absolute";
-  container.style["max-width"] = "30%";
-  container.style.background = "rgba(1,1,1,0.3)";
-  container.style["backdrop-filter"] = "blur(4px)";
-  // container.style.border = "solid red 20px";
+  container.style.maxWidth = "30%";
+  container.style.color = "black";
+  container.style.background = "rgba(255,255,255,0.3)";
+  container.style.backdropFilter = "blur(4px)";
+  container.style.border = "solid black 1px";
+  container.style.borderRadius = "3px";
+  container.style.padding = "10px";
   container.style.visibility = "hidden";
+  // container.style.pointerEvents = "all";
 
   // Update our global variable
   definitionElement = { container: container, word: word, definition: definition };
@@ -77,7 +83,8 @@ function fillDefinitionElement(dictEntry) {
   container.style.left = `${boundingRect.x + window.scrollX - 0.5 * container.clientWidth}px`;
   container.style.top = `${boundingRect.y + window.scrollY - container.clientHeight}px`;
 
-  toggleVisibility();
+  isHidden = false;
+  updateVisibility();
 }
 
 // From https://stackoverflow.com/questions/6846230/coordinates-of-selected-text-in-browser-page 
@@ -111,13 +118,19 @@ function getSelectionCoords(win) {
   return {x: x, y: y};
 }
 
-function toggleVisibility() {
+function updateVisibility() {
   if (isHidden) {
-    definitionElement.container.style.visibility = "visible";
-    container.style["backdrop-filter"] = "blur(4px)";
-  } else {
     definitionElement.container.style.visibility = "hidden";
-    container.style["backdrop-filter"] = "none";
+    definitionElement.container.style["backdrop-filter"] = "none";
+  } else {
+    definitionElement.container.style.visibility = "visible";
+    definitionElement.container.style["backdrop-filter"] = "blur(4px)";
   }
-  isHidden = !isHidden;
+}
+
+function handleClick(mouseEvent) {
+  if (mouseEvent.target != definitionElement.container && mouseEvent.target != definitionElement.definition && mouseEvent.target != definitionElement.word) {
+    isHidden = true;
+    updateVisibility();
+  }
 }
