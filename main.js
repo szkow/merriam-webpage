@@ -49,7 +49,10 @@ function createDefinitionElement() {
 
   // Style the element
   container.style.position = "absolute";
-  container.style.border = "solid red 20px";
+  container.style["max-width"] = "30%";
+  container.style.background = "rgba(1,1,1,0.3)";
+  container.style["backdrop-filter"] = "blur(4px)";
+  // container.style.border = "solid red 20px";
   container.style.visibility = "hidden";
 
   // Update our global variable
@@ -58,6 +61,8 @@ function createDefinitionElement() {
 }
 
 function fillDefinitionElement(dictEntry) {
+  var container = definitionElement.container;
+
   // Extract the content we need
   const word = dictEntry["meta"]["id"];
   const short = dictEntry["shortdef"];
@@ -69,8 +74,8 @@ function fillDefinitionElement(dictEntry) {
   // Style the element
   const selection = window.getSelection();
   const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
-  definitionElement.container.style.left = `${boundingRect.x + window.scrollX - 0.5 * boundingRect.width}px`;
-  definitionElement.container.style.top = `${boundingRect.y + window.scrollY - 0.5 * boundingRect.height}px`;
+  container.style.left = `${boundingRect.x + window.scrollX - 0.5 * container.clientWidth}px`;
+  container.style.top = `${boundingRect.y + window.scrollY - container.clientHeight}px`;
 
   toggleVisibility();
 }
@@ -109,8 +114,10 @@ function getSelectionCoords(win) {
 function toggleVisibility() {
   if (isHidden) {
     definitionElement.container.style.visibility = "visible";
+    container.style["backdrop-filter"] = "blur(4px)";
   } else {
     definitionElement.container.style.visibility = "hidden";
+    container.style["backdrop-filter"] = "none";
   }
   isHidden = !isHidden;
 }
