@@ -11,6 +11,7 @@ browser.runtime.onMessage.addListener(request => {
   if (definitionElement == null) {
     createDefinitionElement(request.content);
   } 
+  removeDefinitions();
   fillDefinitionElement(request.content);
   return Promise.resolve({response: "Hi from content script"});
 });
@@ -53,7 +54,7 @@ function createDefinitionElement() {
   container.style.position = "absolute";
   container.style.maxWidth = "30%";
   container.style.color = "black";
-  container.style.background = "rgba(255,255,255,0.3)";
+  container.style.background = "rgba(255,255,255,0.45)";
   container.style.backdropFilter = "blur(4px)";
   container.style.border = "solid black 1px";
   container.style.borderRadius = "3px";
@@ -68,14 +69,20 @@ function createDefinitionElement() {
 
 function fillDefinitionElement(dictEntry) {
   var container = definitionElement.container;
+  var definitionList = container.firstChild;
 
   // Extract the content we need
-  const word = dictEntry["meta"]["id"];
+  const word = dictEntry["hwi"]["hw"];
   const short = dictEntry["shortdef"];
 
   // Fill the existing definition element
-  definitionElement.word.innerHTML = word;
-  definitionElement.definition.innerHTML = short;
+  definitionElement.word.innerText = word;
+  definitionElement.definition.innerText = short;
+  short.forEach((def, index) => {
+    var dd = document.createElement("dd");
+    dd.innerText = (index + 1) + ". " + def;
+    definitionList.appendChild(dd);
+  });
 
   // Style the element
   const selection = window.getSelection();
@@ -85,6 +92,13 @@ function fillDefinitionElement(dictEntry) {
 
   isHidden = false;
   updateVisibility();
+}
+
+function removeDefinitions() {
+  var definitions = definitionElement.container.querySelectorAll("dd");
+  definitions.forEach((node) => {
+    definitionElement.container.firstChild.removeChild(node);
+  });
 }
 
 // From https://stackoverflow.com/questions/6846230/coordinates-of-selected-text-in-browser-page 
