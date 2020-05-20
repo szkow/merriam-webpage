@@ -2,11 +2,12 @@
 
 var definitionElement = null;
 var definitionIsHidden = true;
-var bookElement = createBookElement();
+var bookElement = null;
 // console.log(bookElement);
 var bookIsHidden = true;
 
-// bookElement.addEventListener("click", handleBookClick);
+createBookElement();
+bookElement.addEventListener("click", handleBookClick);
 document.addEventListener("click", handleClick);
 document.addEventListener("selectionchange", handleSelectionChange);
 
@@ -24,15 +25,21 @@ browser.runtime.onMessage.addListener(request => {
 function createBookElement() {
   // Make the element
   var book = document.createElement("div");
-  book.innerHTML = "MW";
+  book.innerText = "MW";
 
   // Style it
   book.style.position = "absolute";
+  book.style.cursor = "pointer";
   book.style.visibility = "hidden";
+  book.style["-moz-user-select"] = "none";
+  book.style["-webkit-user-select"] = "none";
+  book.style["-ms-user-select"] = "none";
+  book.style["user-select"] = "none";
+
 
   // Add to document
-  document.body.append(book);
-  return book;
+  bookElement = book;
+  document.body.appendChild(book);
 }
 
 /*
@@ -146,15 +153,16 @@ function handleBookClick(mouseEvent) {
   const word = selection.getRangeAt(0).toString().trim();
 
   // Send the selected word to the background script
-  browser.runtime.sendMessage({headword: word}).catch(err => console.error("Error: " + err));
+  browser.runtime.sendMessage({headword: word}).catch(err => console.error(err));
+  bookElement.style.visibility = "hidden";
 }
 
-function handleSelectionChange() {
+function handleSelectionChange(event) {
   const selection = window.getSelection();
   const word = selection.getRangeAt(0).toString().trim();
 
   // Check if our selection contains only one word
-  if (!word.includes(" ") && word.length != 0) {
+  if (!word.includes(" ") && word.length > 0) {
     // Move the dictionary icon
     const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
     bookElement.style.left = `${boundingRect.x + window.scrollX}px`;

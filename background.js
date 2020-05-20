@@ -1,5 +1,9 @@
 "use strict";
 
+browser.runtime.onMessage.addListener((message) => {
+  browser.tabs.query({active: true}).then(tabList => merriamLookup(message.headword, tabList[0]).catch(onError));
+});
+
 function onCreated() {
   if (browser.runtime.lastError) {
     console.log(`Error: ${browser.runtime.lastError}`);
