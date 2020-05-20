@@ -134,15 +134,19 @@ function updateVisibility() {
 }
 
 function handleClick(mouseEvent) {
-  if (mouseEvent.target != definitionElement.container && mouseEvent.target != definitionElement.definition && mouseEvent.target != definitionElement.word) {
+  if (mouseEvent.target != definitionElement.container && mouseEvent.target != definitionElement.definition && mouseEvent.target != definitionElement.word && mouseEvent.target != bookElement) {
     definitionIsHidden = true;
     updateVisibility();
-    // bookElement.style.visibility = "hidden";
   }
 }
 
 function handleBookClick(mouseEvent) {
+  console.log("I got clicked!");
+  const selection = window.getSelection();
+  const word = selection.getRangeAt(0).toString().trim();
 
+  // Send the selected word to the background script
+  browser.runtime.sendMessage({headword: word}).catch(err => console.error("Error: " + err));
 }
 
 function handleSelectionChange() {
@@ -150,11 +154,11 @@ function handleSelectionChange() {
   const word = selection.getRangeAt(0).toString().trim();
 
   // Check if our selection contains only one word
-  if (!word.includes(" ")) {
+  if (!word.includes(" ") && word.length != 0) {
     // Move the dictionary icon
     const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
     bookElement.style.left = `${boundingRect.x + window.scrollX}px`;
-    bookElement.style.top = `calc(${boundingRect.y + window.scrollY}px - 1ch)`;
+    bookElement.style.top = `calc(${boundingRect.y + window.scrollY - bookElement.clientHeight}px - 1ch)`;
 
     // console.log(`x: ${boundingRect.x + window.scrollX}, y: ${boundingRect.y + window.scrollY}`)
     // Show the icon
