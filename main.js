@@ -12,13 +12,11 @@ document.addEventListener("click", handleClick);
 document.addEventListener("selectionchange", handleSelectionChange);
 
 browser.runtime.onMessage.addListener(request => {
-  console.log("Message from the background script:");
-  console.log(request.content);
   if (definitionElement == null) {
-    createDefinitionElement(request.content);
-  } 
+    createDefinitionElement();
+  }
   emptyDefinitionElement();
-  fillDefinitionElement(request.content);
+  fillDefinitionElement(request);
   return Promise.resolve({response: "Hi from content script"});
 });
 
@@ -92,26 +90,31 @@ function createDefinitionElement() {
   document.body.append(definitionElement.container);
 }
 
-function fillDefinitionElement(dictEntry) {
+function fillDefinitionElement(message) {
+  const dictEntry = message.content;
   var container = definitionElement.container;
   var definitionList = container.firstChild;
 
-  // Extract the content we need
-  const word = dictEntry["hwi"]["hw"];
-  const short = dictEntry["shortdef"];
+  if (message.error) {
+    definitionElement.word.innerText = ":(";
+  } else {
+    // Extract the content we need
+    const word = dictEntry["hwi"]["hw"];
+    const short = dictEntry["shortdef"];
 
-  // Fill the existing definition element
-  definitionElement.word.innerText = word;
-  definitionElement.definition.innerText = short;
-  short.forEach((def, index) => {
-    var dd = document.createElement("dd");
-    if (short.length > 1) {
-      dd.innerText = (index + 1) + ". " + def;
-    } else {
-      dd.innerText = def;
-    }
-    definitionList.appendChild(dd);
-  });
+    // Fill the existing definition element
+    definitionElement.word.innerText = word;
+    definitionElement.definition.innerText = short;
+    short.forEach((def, index) => {
+      var dd = document.createElement("dd");
+      if (short.length > 1) {
+        dd.innerText = (index + 1) + ". " + def;
+      } else {
+        dd.innerText = def;
+      }
+      definitionList.appendChild(dd);
+    });
+  }
 
   // Style the element
   const selection = window.getSelection();

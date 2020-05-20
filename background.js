@@ -11,7 +11,7 @@ function onCreated() {
 }
 
 function onError(error) {
-  console.error(`Error: ${error}`);
+  console.error(error);
 }
 
 
@@ -48,19 +48,26 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 
 // Makes an HTTP request to Merriam-Webster's API
 function merriamLookup(word, tab) {
-  fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=7c41540c-3178-41c3-838c-216c402fd175`).then(response => response.json()).then(response => sendEntry(response, tab)).catch(onError);
+  fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=7c41540c-3178-41c3-838c-216c402fd175`).then(response => response.json()).then(response => sendEntry(response, tab)).catch(onError).then(sendEntry(null, tab));
 }
 
 // Takes in a JSON object which is the dictionary entry for the selected word
 function sendEntry(response, tab) {
-  // Use only the first match for simplicity
-  const dictEntry = response[0];
-
+  var foundWord;
+  var dictEntry;
   console.log(response);
+
+  if (response == null || response.length == 0) {
+    foundWord = false;
+    dictEntry = null;
+  } else {
+    foundWord = true;
+    dictEntry = response[0];
+  }
 
   browser.tabs.sendMessage(
     tab.id,
-    {content: dictEntry}
+    { error: !foundWord, content: dictEntry }
   ).then(response => {
     console.log("Message from the content script:");
     console.log(response.response);
