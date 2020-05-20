@@ -1,8 +1,6 @@
 "use strict";
 
-browser.runtime.onMessage.addListener((message) => {
-  browser.tabs.query({active: true}).then(tabList => merriamLookup(message.headword, tabList[0]).catch(onError));
-});
+browser.runtime.onMessage.addListener(handleBookMessage);
 
 function onCreated() {
   if (browser.runtime.lastError) {
@@ -17,11 +15,11 @@ function onError(error) {
 }
 
 
-browser.contextMenus.create({
-  id: "log-selection",
-  title: "contextMenuItemSelectionLogger",
-  contexts: ["selection"]
-}, onCreated);
+// browser.contextMenus.create({
+//   id: "log-selection",
+//   title: "contextMenuItemSelectionLogger",
+//   contexts: ["selection"]
+// }, onCreated);
 
 browser.contextMenus.create({
   id: "lookup-selection",
@@ -58,7 +56,7 @@ function sendEntry(response, tab) {
   // Use only the first match for simplicity
   const dictEntry = response[0];
 
-  console.log(dictEntry);
+  console.log(response);
 
   browser.tabs.sendMessage(
     tab.id,
@@ -67,4 +65,8 @@ function sendEntry(response, tab) {
     console.log("Message from the content script:");
     console.log(response.response);
   }).catch(onError);
+}
+
+function handleBookMessage(message) {
+  browser.tabs.query({active: true}).then(tabList => merriamLookup(message.headword, tabList[0])).catch(onError);
 }
