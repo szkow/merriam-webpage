@@ -2,13 +2,18 @@
   "manifest_version": 2,
   "name": "Merriam's Book",
   "version": "0.1",
+  
 
   "description": "Allows you to easily look up words on webpages in Merriam-Webster's dictionary.",
 
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["main.js"]
+      "js": [
+        "main.js",
+        "fontawesome_fix.js",
+        "./node_modules/@fortawesome/fontawesome-free/js/all.js"
+      ]
     }
   ],
 
@@ -19,5 +24,9 @@
   "permissions": [
     "contextMenus",
     "activeTab"
+  ],
+
+  "web_accessible_resources" : [
+    "resources/book-solid.svg"
   ]
 }
