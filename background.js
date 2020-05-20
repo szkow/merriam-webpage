@@ -48,7 +48,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 
 // Makes an HTTP request to Merriam-Webster's API
 function merriamLookup(word, tab) {
-  fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=7c41540c-3178-41c3-838c-216c402fd175`).then(response => response.json()).then(response => sendEntry(response, tab)).catch(onError).then(sendEntry(null, tab));
+  fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=7c41540c-3178-41c3-838c-216c402fd175`).then(response => response.json()).catch(onError).then(response => sendEntry(response, tab));
 }
 
 // Takes in a JSON object which is the dictionary entry for the selected word
@@ -57,7 +57,7 @@ function sendEntry(response, tab) {
   var dictEntry;
   console.log(response);
 
-  if (response == null || response.length == 0) {
+  if (response == null || response.length == 0 || typeof(response[0]) != 'object') {
     foundWord = false;
     dictEntry = null;
   } else {
@@ -68,10 +68,7 @@ function sendEntry(response, tab) {
   browser.tabs.sendMessage(
     tab.id,
     { error: !foundWord, content: dictEntry }
-  ).then(response => {
-    console.log("Message from the content script:");
-    console.log(response.response);
-  }).catch(onError);
+  ).catch(onError);
 }
 
 function handleBookMessage(message) {

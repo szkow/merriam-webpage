@@ -1,5 +1,7 @@
 "use strict";
 
+const kMaxDefinitionWidthPercent = 0.3;
+
 var definitionElement = null;
 var definitionIsHidden = true;
 var bookElement = null;
@@ -23,10 +25,13 @@ browser.runtime.onMessage.addListener(request => {
 function createBookElement() {
   // Make the element
   var book = document.createElement("div");
-  book.innerText = "MW";
+  var bookImage = document.createElement("i");
+  bookImage.className = "fas fa-book";
+  book.append(bookImage);
 
   // Style it
   book.style.position = "absolute";
+  book.style.zIndex = 0;
   book.style.cursor = "pointer";
   book.style.visibility = "hidden";
   book.style["-moz-user-select"] = "none";
@@ -44,7 +49,8 @@ function createBookElement() {
  * HTML layout:
  *    <div>
  *      <dl>
- *        <dt> WORD </dt>
+ *        <dt> WORD </dt> 
+ *        <span>LINK</span>
  *        <dd> DEF 1 </dd>
  *        <dd> DEF 2 </dd>
  *             . . .
@@ -68,11 +74,16 @@ function createDefinitionElement() {
   var container = document.createElement("div");
   var definitionList = document.createElement("dl");
   var word = document.createElement("dt");
+  var link = document.createElement("a");
+  var span = document.createElement("span");
   var definition = document.createElement("dd");
   container.appendChild(definitionList);
   definitionList.appendChild(word);
+  definitionList.appendChild(span);
+  span.appendChild(link);
   definitionList.appendChild(definition);
 
+  link.innerText = ">>";
 
   // Style the element
   container.style.position = "absolute";
@@ -84,9 +95,15 @@ function createDefinitionElement() {
   container.style.borderRadius = "3px";
   container.style.padding = "5px 10px";
   container.style.visibility = "hidden";
+  // span.style.fontSize = "x-small";
+  span.style.paddingLeft = "0.7em";
+  span.style.display = "relative";
+  span.style.bottom = "1em";
+  link.target = "_blank";
+  word.style.display = "inline";
 
   // Update our global variable
-  definitionElement = { container: container, word: word, definition: definition };
+  definitionElement = { container: container, word: word, span: span, definition: definition };
   document.body.append(definitionElement.container);
 }
 
@@ -96,8 +113,10 @@ function fillDefinitionElement(message) {
   var definitionList = container.firstChild;
 
   if (message.error) {
-    definitionElement.word.innerText = ":(";
+    definitionElement.word.innerText = "Couldn't find matching entry :(";
+    definitionElement.span.style.visibility = "hidden";
   } else {
+    definitionElement.span.style.visibility = "inherit";
     // Extract the content we need
     const word = dictEntry["hwi"]["hw"];
     const short = dictEntry["shortdef"];
@@ -114,6 +133,13 @@ function fillDefinitionElement(message) {
       }
       definitionList.appendChild(dd);
     });
+
+    const index = word.indexOf(":");
+    if (index < 0) {
+      definitionElement.span.firstChild.href = `https://www.merriam-webster.com/dictionary/${word.replace("*", "")}`;
+    } else {
+      definitionElement.span.firstChild.href = `https://www.merriam-webster.com/dictionary/${word.replace("*", "").substring(0, index)}`;
+    }
   }
 
   // Style the element
@@ -121,6 +147,7 @@ function fillDefinitionElement(message) {
   const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
   container.style.left = `${boundingRect.x + window.scrollX - 0.5 * container.clientWidth}px`;
   container.style.top = `calc(${boundingRect.y + window.scrollY - container.clientHeight}px - 1ch)`;
+  container.style.maxWidth = `${Math.min(boundingRect.x + window.scrollX, Math.min(window.innerWidth - (boundingRect.x + window.scrollX), kMaxDefinitionWidthPercent * window.innerWidth))}px`;
 
   definitionIsHidden = false;
   updateVisibility();
@@ -168,8 +195,8 @@ function handleSelectionChange(event) {
   if (!word.includes(" ") && word.length > 0) {
     // Move the dictionary icon
     const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
-    bookElement.style.left = `${boundingRect.x + window.scrollX}px`;
-    bookElement.style.top = `calc(${boundingRect.y + window.scrollY - bookElement.clientHeight}px - 1ch)`;
+    bookElement.style.left = `calc(${boundingRect.x + window.scrollX}px - 1ch)`;
+    bookElement.style.top = `calc(${boundingRect.y + window.scrollY - bookElement.clientHeight}px - 3px)`;
 
     // console.log(`x: ${boundingRect.x + window.scrollX}, y: ${boundingRect.y + window.scrollY}`)
     // Show the icon
