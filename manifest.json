@@ -2,7 +2,6 @@
   "manifest_version": 2,
   "name": "Merriam's Book",
   "version": "0.1",
-  
 
   "description": "Allows you to easily look up words on webpages in Merriam-Webster's dictionary.",
 
@@ -24,9 +23,5 @@
   "permissions": [
     "contextMenus",
     "activeTab"
-  ],
-
-  "web_accessible_resources" : [
-    "resources/book-solid.svg"
   ]
 }

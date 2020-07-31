@@ -38,7 +38,10 @@ function createBookElement() {
   book.style["-webkit-user-select"] = "none";
   book.style["-ms-user-select"] = "none";
   book.style["user-select"] = "none";
-
+  // book.style.opacity = 0.5;
+  book.id = "bookicon";
+  book.style.transition = "opacity 250ms";
+  // document.styleSheets[0].insertRule("#bookicon:hover { opacity: 1.0; }", 0);
 
   // Add to document
   bookElement = book;
@@ -76,14 +79,14 @@ function createDefinitionElement() {
   var word = document.createElement("dt");
   var link = document.createElement("a");
   var span = document.createElement("span");
+  var chevron = document.createElement("i")
   var definition = document.createElement("dd");
   container.appendChild(definitionList);
   definitionList.appendChild(word);
   definitionList.appendChild(span);
   span.appendChild(link);
+  link.appendChild(chevron);
   definitionList.appendChild(definition);
-
-  link.innerText = ">>";
 
   // Style the element
   container.style.position = "absolute";
@@ -95,10 +98,11 @@ function createDefinitionElement() {
   container.style.borderRadius = "3px";
   container.style.padding = "5px 10px";
   container.style.visibility = "hidden";
-  // span.style.fontSize = "x-small";
+  span.style.fontSize = "small";
   span.style.paddingLeft = "0.7em";
   span.style.display = "relative";
-  span.style.bottom = "1em";
+  span.style.paddingBottom = "1em";
+  chevron.className = "fas fa-chevron-circle-right";
   link.target = "_blank";
   word.style.display = "inline";
 
