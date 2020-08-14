@@ -5,7 +5,6 @@ const kMaxDefinitionWidthPercent = 0.3;
 var definitionElement = null;
 var definitionIsHidden = true;
 var bookElement = null;
-// console.log(bookElement);
 var bookIsHidden = true;
 
 createBookElement();
@@ -19,7 +18,7 @@ browser.runtime.onMessage.addListener(request => {
   }
   emptyDefinitionElement();
   fillDefinitionElement(request);
-  return Promise.resolve({response: "Hi from content script"});
+  return Promise.resolve({response: "All is well"});
 });
 
 function createBookElement() {
@@ -182,7 +181,6 @@ function handleClick(mouseEvent) {
 }
 
 function handleBookClick(mouseEvent) {
-  console.log("I got clicked!");
   const selection = window.getSelection();
   const word = selection.getRangeAt(0).toString().trim();
 
@@ -202,8 +200,8 @@ function handleSelectionChange(event) {
     bookElement.style.left = `calc(${boundingRect.x + window.scrollX}px - 1ch)`;
     bookElement.style.top = `calc(${boundingRect.y + window.scrollY - bookElement.clientHeight}px - 3px)`;
 
-    // console.log(`x: ${boundingRect.x + window.scrollX}, y: ${boundingRect.y + window.scrollY}`)
     // Show the icon
+    bookElement.title = `Look up "${word}"`
     bookElement.style.visibility = "visible";
   } else {
     bookElement.style.visibility = "hidden";

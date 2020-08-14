@@ -28,11 +28,9 @@ browser.contextMenus.create({
 }, onCreated);
 
 browser.contextMenus.onClicked.addListener((info, tab) => {
-  // console.log("Entered listener");
   switch (info.menuItemId) {
     case "log-selection":
       console.log(info.selectionText);
-      // console.log("oh boy i did a thing");
       break;
     case "lookup-selection":
       // Preprocess selected text
