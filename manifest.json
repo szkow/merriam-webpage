@@ -1,15 +1,25 @@
 {
   "manifest_version": 2,
-  "name": "Merriam's Book",
-  "version": "0.1",
+  "name": "Merriam's Webpage",
+  "version": "0.3",
+  "developer": {
+    "name": "April Roszkowski",
+    "url": "https://github.com/szkow/merriam-webpage"
+  },
 
   "description": "Allows you to easily look up words on webpages in Merriam-Webster's dictionary.",
 
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["main.js"]
+      "js": [
+        "main.js"
+      ]
     }
+  ],
+
+  "web_accessible_resources": [
+    "book-solid.svg"
   ],
 
   "background": {

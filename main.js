@@ -1,29 +1,68 @@
 "use strict";
 
-var definitionElement = null;
-var isHidden = true;
+const kMaxDefinitionWidthPercent = 0.3;
 
+var definitionElement = null;
+var definitionIsHidden = true;
+var bookElement = null;
+var bookIsHidden = true;
+
+createBookElement();
+bookElement.addEventListener("click", handleBookClick);
 document.addEventListener("click", handleClick);
+document.addEventListener("selectionchange", handleSelectionChange);
 
 browser.runtime.onMessage.addListener(request => {
-  console.log("Message from the background script:");
-  console.log(request.content);
   if (definitionElement == null) {
-    createDefinitionElement(request.content);
-  } 
-  fillDefinitionElement(request.content);
-  return Promise.resolve({response: "Hi from content script"});
+    createDefinitionElement();
+  }
+  emptyDefinitionElement();
+  fillDefinitionElement(request);
+  return Promise.resolve({response: "All is well"});
 });
+
+function createBookElement() {
+  // Make the element
+  var book = document.createElement("div");
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", browser.runtime.getURL("book-solid.svg"), false);
+  xhr.overrideMimeType("image/svg+xml");
+  xhr.onload = (e) => {
+    book.appendChild(xhr.responseXML.documentElement);
+  }
+  xhr.send("");
+
+  // Style it
+  book.style.width = "1em"; // Necessary to scale svg properly
+  book.style.position = "absolute";
+  book.style.zIndex = 0;
+  book.style.cursor = "pointer";
+  book.style.visibility = "hidden";
+  book.style["-moz-user-select"] = "none";
+  book.style["-webkit-user-select"] = "none";
+  book.style["-ms-user-select"] = "none";
+  book.style["user-select"] = "none";
+  // book.style.opacity = 0.5;
+  book.id = "bookicon";
+  book.style.transition = "opacity 250ms";
+  // document.styleSheets[0].insertRule("#bookicon:hover { opacity: 1.0; }", 0);
+
+  // Add to document
+  bookElement = book;
+  document.body.appendChild(book);
+}
 
 /*
  * HTML layout:
  *    <div>
  *      <dl>
- *        <dt> WORD </dt>
+ *        <dt> WORD </dt> 
+ *        <span>LINK</span>
  *        <dd> DEF 1 </dd>
  *        <dd> DEF 2 </dd>
  *             . . .
  *      </dl>
+ *      <a> LINK TO DICTIONARY </a>
  *    </div>
  */
 function createDefinitionElement() {
@@ -33,7 +72,6 @@ function createDefinitionElement() {
   const anchorOffset = selection.anchorOffset;
   const anchor = selection.anchorNode;
   const parentAnchor = anchor.parentNode;
-  const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
 
   /* 
    * Create the element
@@ -43,83 +81,95 @@ function createDefinitionElement() {
   var container = document.createElement("div");
   var definitionList = document.createElement("dl");
   var word = document.createElement("dt");
+  var link = document.createElement("a");
+  var span = document.createElement("span");
+  var chevron = document.createElement("i")
   var definition = document.createElement("dd");
   container.appendChild(definitionList);
   definitionList.appendChild(word);
+  definitionList.appendChild(span);
+  span.appendChild(link);
+  link.appendChild(chevron);
   definitionList.appendChild(definition);
-
 
   // Style the element
   container.style.position = "absolute";
   container.style.maxWidth = "30%";
   container.style.color = "black";
-  container.style.background = "rgba(255,255,255,0.3)";
+  container.style.background = "rgba(255,255,255,0.45)";
   container.style.backdropFilter = "blur(4px)";
   container.style.border = "solid black 1px";
   container.style.borderRadius = "3px";
-  container.style.padding = "10px";
+  container.style.padding = "5px 10px";
   container.style.visibility = "hidden";
-  // container.style.pointerEvents = "all";
+  span.style.fontSize = "small";
+  span.style.paddingLeft = "0.7em";
+  span.style.display = "relative";
+  span.style.paddingBottom = "1em";
+  chevron.className = "fas fa-chevron-circle-right";
+  link.target = "_blank";
+  word.style.display = "inline";
 
   // Update our global variable
-  definitionElement = { container: container, word: word, definition: definition };
+  definitionElement = { container: container, word: word, span: span, definition: definition };
   document.body.append(definitionElement.container);
 }
 
-function fillDefinitionElement(dictEntry) {
+function fillDefinitionElement(message) {
+  const dictEntry = message.content;
   var container = definitionElement.container;
+  var definitionList = container.firstChild;
 
-  // Extract the content we need
-  const word = dictEntry["meta"]["id"];
-  const short = dictEntry["shortdef"];
+  if (message.error) {
+    definitionElement.word.innerText = "Couldn't find matching entry :(";
+    definitionElement.span.style.visibility = "hidden";
+  } else {
+    definitionElement.span.style.visibility = "inherit";
+    // Extract the content we need
+    const word = dictEntry["hwi"]["hw"];
+    const short = dictEntry["shortdef"];
 
-  // Fill the existing definition element
-  definitionElement.word.innerHTML = word;
-  definitionElement.definition.innerHTML = short;
+    // Fill the existing definition element
+    definitionElement.word.innerText = word;
+    definitionElement.definition.innerText = short;
+    short.forEach((def, index) => {
+      var dd = document.createElement("dd");
+      if (short.length > 1) {
+        dd.innerText = (index + 1) + ". " + def;
+      } else {
+        dd.innerText = def;
+      }
+      definitionList.appendChild(dd);
+    });
+
+    const index = word.indexOf(":");
+    if (index < 0) {
+      definitionElement.span.firstChild.href = `https://www.merriam-webster.com/dictionary/${word.replace("*", "")}`;
+    } else {
+      definitionElement.span.firstChild.href = `https://www.merriam-webster.com/dictionary/${word.replace("*", "").substring(0, index)}`;
+    }
+  }
 
   // Style the element
   const selection = window.getSelection();
   const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
   container.style.left = `${boundingRect.x + window.scrollX - 0.5 * container.clientWidth}px`;
-  container.style.top = `${boundingRect.y + window.scrollY - container.clientHeight}px`;
+  container.style.top = `calc(${boundingRect.y + window.scrollY - container.clientHeight}px - 1ch)`;
+  container.style.maxWidth = `${Math.min(boundingRect.x + window.scrollX, Math.min(window.innerWidth - (boundingRect.x + window.scrollX), kMaxDefinitionWidthPercent * window.innerWidth))}px`;
 
-  isHidden = false;
+  definitionIsHidden = false;
   updateVisibility();
 }
 
-// From https://stackoverflow.com/questions/6846230/coordinates-of-selected-text-in-browser-page 
-function getSelectionCoords(win) {
-  win = win || window;
-  var doc = win.document;
-  var sel = doc.selection, range, rects, rect;
-  var x = 0, y = 0;
-  if (sel) {
-    if (sel.type != "Control") {
-      range = sel.createRange();
-      range.collapse(true);
-      x = range.boundingLeft;
-      y = range.boundingTop;
-    }
-  } else if (win.getSelection) {
-    sel = win.getSelection();
-    if (sel.rangeCount) {
-      range = sel.getRangeAt(0).cloneRange();
-      if (range.getClientRects) {
-        range.collapse(true);
-        rects = range.getClientRects();
-        if (rects.length > 0) {
-          rect = rects[0];
-        }
-        x = rect.left;
-        y = rect.top;
-      }
-    }
-  }
-  return {x: x, y: y};
+function emptyDefinitionElement() {
+  var definitions = definitionElement.container.querySelectorAll("dd");
+  definitions.forEach((node) => {
+    definitionElement.container.firstChild.removeChild(node);
+  });
 }
 
 function updateVisibility() {
-  if (isHidden) {
+  if (definitionIsHidden) {
     definitionElement.container.style.visibility = "hidden";
     definitionElement.container.style["backdrop-filter"] = "none";
   } else {
@@ -129,8 +179,36 @@ function updateVisibility() {
 }
 
 function handleClick(mouseEvent) {
-  if (mouseEvent.target != definitionElement.container && mouseEvent.target != definitionElement.definition && mouseEvent.target != definitionElement.word) {
-    isHidden = true;
+  if (mouseEvent.target != definitionElement.container && mouseEvent.target != definitionElement.definition && mouseEvent.target != definitionElement.word && mouseEvent.target != bookElement) {
+    definitionIsHidden = true;
     updateVisibility();
+  }
+}
+
+function handleBookClick(mouseEvent) {
+  const selection = window.getSelection();
+  const word = selection.getRangeAt(0).toString().trim();
+
+  // Send the selected word to the background script
+  browser.runtime.sendMessage({headword: word}).catch(err => console.error(err));
+  bookElement.style.visibility = "hidden";
+}
+
+function handleSelectionChange(event) {
+  const selection = window.getSelection();
+  const word = selection.getRangeAt(0).toString().trim();
+
+  // Check if our selection contains only one word
+  if (!word.includes(" ") && word.length > 0) {
+    // Move the dictionary icon
+    const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
+    bookElement.style.left = `calc(${boundingRect.x + window.scrollX}px - 1ch)`;
+    bookElement.style.top = `calc(${boundingRect.y + window.scrollY - bookElement.clientHeight}px - 3px)`;
+
+    // Show the icon
+    bookElement.title = `Look up "${word}"`;
+    bookElement.style.visibility = "visible";
+  } else {
+    bookElement.style.visibility = "hidden";
   }
 }
