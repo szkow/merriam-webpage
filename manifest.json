@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Merriam's Webpage",
-  "version": "0.2",
+  "version": "0.3",
   "developer": {
     "name": "April Roszkowski",
     "url": "https://github.com/szkow/merriam-webpage"
@@ -13,11 +13,13 @@
     {
       "matches": ["<all_urls>"],
       "js": [
-        "main.js",
-        "fontawesome_fix.js",
-        "./node_modules/@fortawesome/fontawesome-free/js/all.js"
+        "main.js"
       ]
     }
+  ],
+
+  "web_accessible_resources": [
+    "book-solid.svg"
   ],
 
   "background": {

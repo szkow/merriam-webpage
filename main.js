@@ -24,11 +24,16 @@ browser.runtime.onMessage.addListener(request => {
 function createBookElement() {
   // Make the element
   var book = document.createElement("div");
-  var bookImage = document.createElement("i");
-  bookImage.className = "fas fa-book";
-  book.append(bookImage);
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", browser.runtime.getURL("book-solid.svg"), false);
+  xhr.overrideMimeType("image/svg+xml");
+  xhr.onload = (e) => {
+    book.appendChild(xhr.responseXML.documentElement);
+  }
+  xhr.send("");
 
   // Style it
+  book.style.width = "1em"; // Necessary to scale svg properly
   book.style.position = "absolute";
   book.style.zIndex = 0;
   book.style.cursor = "pointer";
@@ -201,7 +206,7 @@ function handleSelectionChange(event) {
     bookElement.style.top = `calc(${boundingRect.y + window.scrollY - bookElement.clientHeight}px - 3px)`;
 
     // Show the icon
-    bookElement.title = `Look up "${word}"`
+    bookElement.title = `Look up "${word}"`;
     bookElement.style.visibility = "visible";
   } else {
     bookElement.style.visibility = "hidden";
