@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Merriam's Webpage",
-  "version": "0.3",
+  "version": "0.4",
   "developer": {
     "name": "April Roszkowski",
     "url": "https://github.com/szkow/merriam-webpage"
@@ -24,6 +24,11 @@
 
   "background": {
     "scripts": ["background.js"]
+  },
+
+  "browser_action": {
+    "default_title": "Merriam's Webpage",
+    "default_popup": "popup.html"
   },
 
   "permissions": [
