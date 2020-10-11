@@ -1,5 +1,10 @@
 "use strict";
 
+let popup_port;
+browser.runtime.onConnect.addListener(function(port) {
+  popup_port = port
+  popup_port.onMessage.addListener(handlePopupMessage);
+});
 browser.runtime.onMessage.addListener(handleBookMessage);
 
 function onCreated() {
@@ -69,4 +74,23 @@ function sendEntry(response, tab) {
 
 function handleBookMessage(message) {
   browser.tabs.query({active: true}).then(tabList => merriamLookup(message.headword, tabList[0])).catch(onError);
+}
+
+function handlePopupMessage(message) {
+  console.log("In background script, received message from popup script: ");
+  fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${message.headword}?key=7c41540c-3178-41c3-838c-216c402fd175`).then(response => response.json()).catch(onError).then(response => {
+    var foundWord;
+    var dictEntry;
+    // console.log(response);
+  
+    if (response == null || response.length == 0 || typeof(response[0]) != 'object') {
+      foundWord = false;
+      dictEntry = null;
+    } else {
+      foundWord = true;
+      dictEntry = response[0];
+    }
+  
+    popup_port.postMessage({ error: !foundWord, content: dictEntry })
+  });
 }
