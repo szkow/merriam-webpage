@@ -83,16 +83,24 @@ function createDefinitionElement() {
   var word = document.createElement("dt");
   var link = document.createElement("a");
   var span = document.createElement("span");
-  var chevron = document.createElement("i")
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", browser.runtime.getURL("chevron-circle-right-solid.svg"), false);
+  xhr.overrideMimeType("image/svg+xml");
+  xhr.onload = (e) => {
+    link.appendChild(xhr.responseXML.documentElement);
+  }
+  xhr.send("");
+
   var definition = document.createElement("dd");
   container.appendChild(definitionList);
   definitionList.appendChild(word);
   definitionList.appendChild(span);
   span.appendChild(link);
-  link.appendChild(chevron);
   definitionList.appendChild(definition);
 
   // Style the element
+  link.firstChild.style.width = "1em"; // Set chevron size
   container.style.position = "absolute";
   container.style.maxWidth = "30%";
   container.style.color = "black";
@@ -106,7 +114,6 @@ function createDefinitionElement() {
   span.style.paddingLeft = "0.7em";
   span.style.display = "relative";
   span.style.paddingBottom = "1em";
-  chevron.className = "fas fa-chevron-circle-right";
   link.target = "_blank";
   word.style.display = "inline";
 
@@ -126,7 +133,7 @@ function fillDefinitionElement(message) {
   } else {
     definitionElement.span.style.visibility = "inherit";
     // Extract the content we need
-    const word = dictEntry["hwi"]["hw"];
+    const word = dictEntry["hwi"]["hw"].replace("*", "\u00B7");
     const short = dictEntry["shortdef"];
 
     // Fill the existing definition element
