@@ -36,9 +36,12 @@ function fillPopup(message) {
   // Update the content
   if (message.error) {
     headword.innerText = "Couldn't find matching entry :(";
+    link.style.pointerEvents = "none";
   } else {
+    link.style.pointerEvents = "default";
+
     // Extract the content we need
-    const word = dictEntry["hwi"]["hw"].replace("*", "\u00B7");
+    const word = dictEntry["hwi"]["hw"].replaceAll("*", "\u00B7");
     const short = dictEntry["shortdef"];
 
     // Fill the existing definition element
