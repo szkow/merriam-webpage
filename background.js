@@ -5,9 +5,7 @@ browser.runtime.onMessage.addListener(handleBookMessage);
 function onCreated() {
   if (browser.runtime.lastError) {
     console.log(`Error: ${browser.runtime.lastError}`);
-  } else {
-    console.log("Item created successfully");
-  }
+  } 
 }
 
 function onError(error) {
@@ -37,9 +35,9 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       const word = info.selectionText.trim().split(' ')[0];
 
       // Perform the lookup
-      console.log(`Looking up ${word}...`);
+      // console.log(`Looking up ${word}...`);
       merriamLookup(word, tab);
-      console.log("done!");
+      // console.log("done!");
       break;
   }
 });
@@ -53,7 +51,7 @@ function merriamLookup(word, tab) {
 function sendEntry(response, tab) {
   var foundWord;
   var dictEntry;
-  console.log(response);
+  // console.log(response);
 
   if (response == null || response.length == 0 || typeof(response[0]) != 'object') {
     foundWord = false;
