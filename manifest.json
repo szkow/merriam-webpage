@@ -1,13 +1,13 @@
 {
   "manifest_version": 2,
   "name": "Merriam's Webpage",
-  "version": "1.0",
+  "version": "1.1",
   "developer": {
     "name": "April Roszkowski",
     "url": "https://github.com/szkow/merriam-webpage"
   },
 
-  "description": "Allows you to easily look up words on webpages in Merriam-Webster's dictionary. Highlight a word and click the book icon to get started",
+  "description": "Allows you to easily look up words on webpages in Merriam-Webster's dictionary. Highlight a word and click the book icon to get started.",
 
   "content_scripts": [
     {
@@ -29,7 +29,8 @@
 
   "browser_action": {
     "default_title": "Merriam's Webpage",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": "dictlookup.jpg"
   },
 
   "permissions": [
