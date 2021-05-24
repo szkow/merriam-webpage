@@ -38,7 +38,7 @@ function fillPopup(message) {
     headword.innerText = "Couldn't find matching entry :(";
     link.style.pointerEvents = "none";
   } else {
-    link.style.pointerEvents = "default";
+    link.style.pointerEvents = "all";
 
     // Extract the content we need
     const word = dictEntry["hwi"]["hw"].replaceAll("*", "\u00B7");
@@ -59,9 +59,9 @@ function fillPopup(message) {
 
     const index = word.indexOf(":");
     if (index < 0) {
-      link.href = `https://www.merriam-webster.com/dictionary/${word.replace("*", "")}`;
+      link.href = `https://www.merriam-webster.com/dictionary/${word.replaceAll("\u00B7", "")}`;
     } else {
-      link.href = `https://www.merriam-webster.com/dictionary/${word.replace("*", "").substring(0, index)}`;
+      link.href = `https://www.merriam-webster.com/dictionary/${word.replaceAll("\u00B7", "").substring(0, index)}`;
     }
   }
 
