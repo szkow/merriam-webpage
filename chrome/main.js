@@ -151,9 +151,9 @@ function fillDefinitionElement(message) {
 
     const index = word.indexOf(":");
     if (index < 0) {
-      definitionElement.span.firstChild.href = `https://www.merriam-webster.com/dictionary/${word.replace("*", "")}`;
+      definitionElement.span.firstChild.href = `https://www.merriam-webster.com/dictionary/${word.replaceAll("\u00B7", "")}`;
     } else {
-      definitionElement.span.firstChild.href = `https://www.merriam-webster.com/dictionary/${word.replace("*", "").substring(0, index)}`;
+      definitionElement.span.firstChild.href = `https://www.merriam-webster.com/dictionary/${word.replaceAll("\u00B7", "").substring(0, index)}`;
     }
   }
 
