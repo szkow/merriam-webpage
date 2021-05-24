@@ -3,11 +3,11 @@
   "name": "Merriam's Webpage",
   "version": "1.2",
 
-  "description": "Allows you to easily look up words on webpages in Merriam-Webster's dictionary. Highlight a word and click the book icon to get started.",
+  "description": "Allows you to easily look up words on webpages in Merriam-Webster's dictionary. Highlight a word and click the book icon to begin.",
 
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
+      "matches": ["http://*/*", "https://*/*"],
       "js": [
         "main.js"
       ]
