@@ -2,10 +2,6 @@
   "manifest_version": 2,
   "name": "Merriam's Webpage",
   "version": "1.2",
-  "developer": {
-    "name": "April Roszkowski",
-    "url": "https://github.com/szkow/merriam-webpage"
-  },
 
   "description": "Allows you to easily look up words on webpages in Merriam-Webster's dictionary. Highlight a word and click the book icon to get started.",
 

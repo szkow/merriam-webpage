@@ -12,7 +12,7 @@ bookElement.addEventListener("click", handleBookClick);
 document.addEventListener("click", handleClick);
 document.addEventListener("selectionchange", handleSelectionChange);
 
-browser.runtime.onMessage.addListener(request => {
+chrome.runtime.onMessage.addListener(request => {
   if (definitionElement == null) {
     createDefinitionElement();
   }
@@ -25,7 +25,7 @@ function createBookElement() {
   // Make the element
   var book = document.createElement("div");
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", browser.runtime.getURL("book-solid.svg"), false);
+  xhr.open("GET", chrome.runtime.getURL("book-solid.svg"), false);
   xhr.overrideMimeType("image/svg+xml");
   xhr.onload = (e) => {
     book.appendChild(xhr.responseXML.documentElement);
@@ -85,7 +85,7 @@ function createDefinitionElement() {
   var span = document.createElement("span");
 
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", browser.runtime.getURL("chevron-circle-right-solid.svg"), false);
+  xhr.open("GET", chrome.runtime.getURL("chevron-circle-right-solid.svg"), false);
   xhr.overrideMimeType("image/svg+xml");
   xhr.onload = (e) => {
     link.appendChild(xhr.responseXML.documentElement);
@@ -186,6 +186,9 @@ function updateVisibility() {
 }
 
 function handleClick(mouseEvent) {
+  if (definitionElement == null) {
+    createDefinitionElement();
+  }
   if (mouseEvent.target != definitionElement.container && mouseEvent.target != definitionElement.definition && mouseEvent.target != definitionElement.word && mouseEvent.target != bookElement) {
     definitionIsHidden = true;
     updateVisibility();
@@ -197,7 +200,7 @@ function handleBookClick(mouseEvent) {
   const word = selection.getRangeAt(0).toString().trim();
 
   // Send the selected word to the background script
-  browser.runtime.sendMessage({headword: word}).catch(err => console.error(err));
+  chrome.runtime.sendMessage({headword: word});
   bookElement.style.visibility = "hidden";
 }
 

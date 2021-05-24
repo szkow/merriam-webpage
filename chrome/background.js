@@ -1,15 +1,15 @@
 "use strict";
 
 let popup_port;
-browser.runtime.onConnect.addListener(function(port) {
+chrome.runtime.onConnect.addListener(function(port) {
   popup_port = port
   popup_port.onMessage.addListener(handlePopupMessage);
 });
-browser.runtime.onMessage.addListener(handleBookMessage);
+chrome.runtime.onMessage.addListener(handleBookMessage);
 
 function onCreated() {
-  if (browser.runtime.lastError) {
-    console.log(`Error: ${browser.runtime.lastError}`);
+  if (chrome.runtime.lastError) {
+    console.log(`Error: ${chrome.runtime.lastError}`);
   } 
 }
 
@@ -18,19 +18,19 @@ function onError(error) {
 }
 
 
-// browser.contextMenus.create({
+// chrome.contextMenus.create({
 //   id: "log-selection",
 //   title: "contextMenuItemSelectionLogger",
 //   contexts: ["selection"]
 // }, onCreated);
 
-browser.contextMenus.create({
+chrome.contextMenus.create({
   id: "lookup-selection",
   title: "Look up word",
   contexts: ["selection"]
 }, onCreated);
 
-browser.contextMenus.onClicked.addListener((info, tab) => {
+chrome.contextMenus.onClicked.addListener((info, tab) => {
   switch (info.menuItemId) {
     case "log-selection":
       console.log(info.selectionText);
@@ -66,14 +66,15 @@ function sendEntry(response, tab) {
     dictEntry = response[0];
   }
 
-  browser.tabs.sendMessage(
+  chrome.tabs.sendMessage(
     tab.id,
     { error: !foundWord, content: dictEntry }
-  ).catch(onError);
+  );
 }
 
 function handleBookMessage(message) {
-  browser.tabs.query({active: true}).then(tabList => merriamLookup(message.headword, tabList[0])).catch(onError);
+  let queryOptions = {active: true};
+  chrome.tabs.query(queryOptions, tabList => merriamLookup(message.headword, tabList[0]));
 }
 
 function handlePopupMessage(message) {

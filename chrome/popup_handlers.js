@@ -1,6 +1,6 @@
 var searchbar = document.getElementById("searchbar");
-let background_port = browser.runtime.connect({name: "popup-port"});
-browser.runtime.onMessage.addListener(handleSearchResponse);
+let background_port = chrome.runtime.connect({name: "popup-port"});
+chrome.runtime.onMessage.addListener(handleSearchResponse);
 background_port.onMessage.addListener(fillPopup);
 
 searchbar.onkeypress = function(e) {
