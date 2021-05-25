@@ -4,14 +4,17 @@ const kMaxDefinitionWidthPercent = 0.3;
 
 var definitionElement = null;
 var definitionIsHidden = true;
+var mouseDownPosition = { x: -1, y: -1 };
+var definitionIsDragging = false;
 var bookElement = null;
 var bookIsHidden = true;
 
 createBookElement();
 bookElement.addEventListener("click", handleBookClick);
-document.addEventListener("click", handleClick);
+document.addEventListener("click", handleDocumentClick);
 document.addEventListener("selectionchange", handleSelectionChange);
 
+// Lookup request handler
 browser.runtime.onMessage.addListener(request => {
   if (definitionElement == null) {
     createDefinitionElement();
@@ -35,6 +38,7 @@ function createBookElement() {
   // Style it
   book.style.width = "1em"; // Necessary to scale svg properly
   book.style.position = "absolute";
+  book.style.backgroundColor = "white";
   book.style.zIndex = 0;
   book.style.cursor = "pointer";
   book.style.visibility = "hidden";
@@ -117,6 +121,33 @@ function createDefinitionElement() {
   link.target = "_blank";
   word.style.display = "inline";
 
+  // Stop clicks inside the element from closing the window
+  container.addEventListener("click", event => event.stopPropagation());
+
+  // Allow user to drag definition
+  container.addEventListener("mousedown", event => { 
+    console.log(event.target.tagName);
+    if (event.target.tagName == "DD" || event.target.tagName == "SPAN" || event.target.tagName == "DT")
+      return;
+    mouseDownPosition = { x: event.offsetX, y: event.offsetY }; 
+    definitionIsDragging = true; 
+  });
+  container.addEventListener("mouseup",   () => { mouseDownPosition = { x: -1, y: -1 }; definitionIsDragging = false; });
+  document.addEventListener("mousemove", 
+    function (event) {
+      // console.log(event.target.tagName);
+      if (!definitionIsHidden && definitionIsDragging) {
+        event.stopPropagation();
+        const x = event.pageX - mouseDownPosition.x;
+        const y = event.pageY - mouseDownPosition.y;
+        container.style.left = `${x}px`;
+        container.style.top = `${y}px`;
+      }
+    }
+  );
+
+
+
   // Update our global variable
   definitionElement = { container: container, word: word, span: span, definition: definition };
   document.body.append(definitionElement.container);
@@ -158,14 +189,16 @@ function fillDefinitionElement(message) {
   }
 
   // Style the element
-  const selection = window.getSelection();
-  const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
-  container.style.left = `${boundingRect.x + window.scrollX - 0.5 * container.clientWidth}px`;
-  container.style.top = `calc(${boundingRect.y + window.scrollY - container.clientHeight}px - 1ch)`;
-  container.style.maxWidth = `${Math.min(boundingRect.x + window.scrollX, Math.min(window.innerWidth - (boundingRect.x + window.scrollX), kMaxDefinitionWidthPercent * window.innerWidth))}px`;
-
   definitionIsHidden = false;
   updateVisibility();
+
+  const selection = window.getSelection();
+  const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
+  const x = boundingRect.x + window.scrollX - 0.5 * container.clientWidth;
+  const y = boundingRect.y + window.scrollY - container.clientHeight - 5; // The -5 is approx. height of a line
+  container.style.left = `${x}px`;
+  container.style.top = `${y}px`; 
+  container.style.maxWidth = `${Math.min(boundingRect.x + window.scrollX, Math.min(window.innerWidth - (boundingRect.x + window.scrollX), kMaxDefinitionWidthPercent * window.innerWidth))}px`;
 }
 
 function emptyDefinitionElement() {
@@ -185,11 +218,9 @@ function updateVisibility() {
   }
 }
 
-function handleClick(mouseEvent) {
-  if (mouseEvent.target != definitionElement.container && mouseEvent.target != definitionElement.definition && mouseEvent.target != definitionElement.word && mouseEvent.target != bookElement) {
-    definitionIsHidden = true;
-    updateVisibility();
-  }
+function handleDocumentClick(mouseEvent) {
+  definitionIsHidden = true;
+  updateVisibility();
 }
 
 function handleBookClick(mouseEvent) {
@@ -199,6 +230,7 @@ function handleBookClick(mouseEvent) {
   // Send the selected word to the background script
   browser.runtime.sendMessage({headword: word}).catch(err => console.error(err));
   bookElement.style.visibility = "hidden";
+  mouseEvent.stopPropagation();
 }
 
 function handleSelectionChange(event) {
@@ -209,8 +241,8 @@ function handleSelectionChange(event) {
   if (!word.includes(" ") && word.length > 0) {
     // Move the dictionary icon
     const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
-    bookElement.style.left = `calc(${boundingRect.x + window.scrollX}px - 1ch)`;
-    bookElement.style.top = `calc(${boundingRect.y + window.scrollY - bookElement.clientHeight}px - 3px)`;
+    bookElement.style.left = `${boundingRect.x + window.scrollX - 5}px`;
+    bookElement.style.top = `${boundingRect.y + window.scrollY - bookElement.clientHeight - 3}px`;
 
     // Show the icon
     bookElement.title = `Look up "${word}"`;
