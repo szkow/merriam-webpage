@@ -16,9 +16,9 @@ document.addEventListener("selectionchange", handleSelectionChange);
 
 // Lookup request handler
 browser.runtime.onMessage.addListener(request => {
-  if (definitionElement == null) {
+  if (definitionElement == null)
     createDefinitionElement();
-  }
+
   emptyDefinitionElement();
   fillDefinitionElement(request);
   return Promise.resolve({response: "All is well"});
@@ -37,6 +37,7 @@ function createBookElement() {
 
   // Style it
   book.style.width = "1em"; // Necessary to scale svg properly
+  book.style.height = "1em";
   book.style.position = "absolute";
   book.style.backgroundColor = "white";
   book.style.zIndex = 0;
@@ -61,12 +62,12 @@ function createBookElement() {
  *    <div>
  *      <dl>
  *        <dt> WORD </dt> 
- *        <span>LINK</span>
+ *        <div></div>
+ *        <a><span>LINK</span></a>
  *        <dd> DEF 1 </dd>
  *        <dd> DEF 2 </dd>
  *             . . .
  *      </dl>
- *      <a> LINK TO DICTIONARY </a>
  *    </div>
  */
 function createDefinitionElement() {
@@ -105,6 +106,7 @@ function createDefinitionElement() {
 
   // Style the element
   link.firstChild.style.width = "1em"; // Set chevron size
+  container.style.cursor = "move";
   container.style.position = "absolute";
   container.style.maxWidth = "30%";
   container.style.color = "black";
@@ -114,11 +116,15 @@ function createDefinitionElement() {
   container.style.borderRadius = "3px";
   container.style.padding = "5px 10px";
   container.style.visibility = "hidden";
-  span.style.fontSize = "small";
+  definitionList.style.cursor = "auto";
+  span.style.fontSize = "normal";
+  span.style.width = "1em";
   span.style.paddingLeft = "0.7em";
   span.style.display = "relative";
   span.style.paddingBottom = "1em";
   link.target = "_blank";
+  link.title = "View full entry"
+  word.style.fontSize = "large";
   word.style.display = "inline";
 
   // Stop clicks inside the element from closing the window
@@ -126,13 +132,23 @@ function createDefinitionElement() {
 
   // Allow user to drag definition
   container.addEventListener("mousedown", event => { 
-    console.log(event.target.tagName);
-    if (event.target.tagName == "DD" || event.target.tagName == "SPAN" || event.target.tagName == "DT")
+    if (event.target != container && container.contains(event.target))
       return;
     mouseDownPosition = { x: event.offsetX, y: event.offsetY }; 
     definitionIsDragging = true; 
+    document.style["-moz-user-select"] = "none";
+    document.style["-webkit-user-select"] = "none";
+    document.style["-ms-user-select"] = "none";
+    document.style["user-select"] = "none";
   });
-  container.addEventListener("mouseup",   () => { mouseDownPosition = { x: -1, y: -1 }; definitionIsDragging = false; });
+  container.addEventListener("mouseup",   () => { 
+    mouseDownPosition = { x: -1, y: -1 };
+    definitionIsDragging = false;
+    document.style["-moz-user-select"] = "auto";
+    document.style["-webkit-user-select"] = "auto";
+    document.style["-ms-user-select"] = "auto";
+    document.style["user-select"] = "auto";
+  });
   document.addEventListener("mousemove", 
     function (event) {
       // console.log(event.target.tagName);
@@ -234,15 +250,21 @@ function handleBookClick(mouseEvent) {
 }
 
 function handleSelectionChange(event) {
+  if (definitionElement == null)
+    createDefinitionElement();
+
   const selection = window.getSelection();
   const word = selection.getRangeAt(0).toString().trim();
+
+  if (definitionElement.container.contains(selection.anchorNode))
+    return;
 
   // Check if our selection contains only one word
   if (!word.includes(" ") && word.length > 0) {
     // Move the dictionary icon
     const boundingRect = selection.getRangeAt(0).getBoundingClientRect();
-    bookElement.style.left = `${boundingRect.x + window.scrollX - 5}px`;
-    bookElement.style.top = `${boundingRect.y + window.scrollY - bookElement.clientHeight - 3}px`;
+    bookElement.style.left = `calc(${boundingRect.x + window.scrollX}px - 1em)`;
+    bookElement.style.top = `calc(${boundingRect.y + window.scrollY - bookElement.clientHeight}px - 1ch)`;
 
     // Show the icon
     bookElement.title = `Look up "${word}"`;
