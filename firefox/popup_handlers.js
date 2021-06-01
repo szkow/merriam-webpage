@@ -15,7 +15,6 @@ searchbar.onkeypress = function(e) {
 
 function handleSearchResponse(response) {
   var definition = document.getElementById('searchbar_definition');
-  console.log("hey i'm in the thing handling the response");
   fillPopup(response);
 }
 

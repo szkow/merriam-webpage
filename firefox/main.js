@@ -63,7 +63,7 @@ function createBookElement() {
  *      <dl>
  *        <dt> WORD </dt> 
  *        <div></div>
- *        <a><span>LINK</span></a>
+ *        <span><a>LINK</a></span>
  *        <dd> DEF 1 </dd>
  *        <dd> DEF 2 </dd>
  *             . . .
@@ -136,18 +136,10 @@ function createDefinitionElement() {
       return;
     mouseDownPosition = { x: event.offsetX, y: event.offsetY }; 
     definitionIsDragging = true; 
-    document.style["-moz-user-select"] = "none";
-    document.style["-webkit-user-select"] = "none";
-    document.style["-ms-user-select"] = "none";
-    document.style["user-select"] = "none";
   });
   container.addEventListener("mouseup",   () => { 
     mouseDownPosition = { x: -1, y: -1 };
     definitionIsDragging = false;
-    document.style["-moz-user-select"] = "auto";
-    document.style["-webkit-user-select"] = "auto";
-    document.style["-ms-user-select"] = "auto";
-    document.style["user-select"] = "auto";
   });
   document.addEventListener("mousemove", 
     function (event) {
@@ -182,19 +174,28 @@ function fillDefinitionElement(message) {
     // Extract the content we need
     const word = dictEntry["hwi"]["hw"].replaceAll("*", "\u00B7");
     const short = dictEntry["shortdef"];
-
+   
     // Fill the existing definition element
-    definitionElement.word.innerText = word;
-    definitionElement.definition.innerText = short;
-    short.forEach((def, index) => {
-      var dd = document.createElement("dd");
-      if (short.length > 1) {
-        dd.innerText = (index + 1) + ". " + def;
-      } else {
-        dd.innerText = def;
-      }
-      definitionList.appendChild(dd);
-    });
+    if (short.length == 0) {
+      definitionElement.word.innerText = "No short definition available, view full entry online"
+    }
+    else {
+      definitionElement.word.innerText = word;
+      definitionElement.definition.innerText = short;
+      short.forEach((def, index) => {
+        var dd = document.createElement("dd");
+        if (short.length > 1) {
+          var def_number = document.createElement("b");
+          def_number.innerText = `${index + 1}`;
+          def_number.style.marginRight = '1em';
+          dd.appendChild(def_number);
+          def_number.after(def);
+        } else {
+          dd.innerText = def;
+        }
+        definitionList.appendChild(dd);
+      });
+    }
 
     const index = word.indexOf(":");
     if (index < 0) {
