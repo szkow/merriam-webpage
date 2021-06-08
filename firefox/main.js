@@ -36,21 +36,8 @@ function createBookElement() {
   xhr.send("");
 
   // Style it
-  book.style.width = "1em"; // Necessary to scale svg properly
-  book.style.height = "1em";
-  book.style.position = "absolute";
-  book.style.backgroundColor = "white";
-  book.style.zIndex = 0;
-  book.style.cursor = "pointer";
+  book.className = "merriamswebpage-bookicon";
   book.style.visibility = "hidden";
-  book.style["-moz-user-select"] = "none";
-  book.style["-webkit-user-select"] = "none";
-  book.style["-ms-user-select"] = "none";
-  book.style["user-select"] = "none";
-  // book.style.opacity = 0.5;
-  book.id = "bookicon";
-  book.style.transition = "opacity 250ms";
-  // document.styleSheets[0].insertRule("#bookicon:hover { opacity: 1.0; }", 0);
 
   // Add to document
   bookElement = book;
@@ -63,7 +50,7 @@ function createBookElement() {
  *      <dl>
  *        <dt> WORD </dt> 
  *        <div></div>
- *        <span><a>LINK</a></span>
+ *        <span><a><svg>...</svg></a></span>
  *        <dd> DEF 1 </dd>
  *        <dd> DEF 2 </dd>
  *             . . .
@@ -105,27 +92,10 @@ function createDefinitionElement() {
   definitionList.appendChild(definition);
 
   // Style the element
-  link.firstChild.style.width = "1em"; // Set chevron size
-  container.style.cursor = "move";
-  container.style.position = "absolute";
-  container.style.maxWidth = "30%";
-  container.style.color = "black";
-  container.style.background = "rgba(255,255,255,0.45)";
-  container.style.backdropFilter = "blur(4px)";
-  container.style.border = "solid black 1px";
-  container.style.borderRadius = "3px";
-  container.style.padding = "5px 10px";
-  container.style.visibility = "hidden";
-  definitionList.style.cursor = "auto";
-  span.style.fontSize = "normal";
-  span.style.width = "1em";
-  span.style.paddingLeft = "0.7em";
-  span.style.display = "relative";
-  span.style.paddingBottom = "1em";
+  container.className = "merriamswebpage-container";
   link.target = "_blank";
-  link.title = "View full entry"
-  word.style.fontSize = "large";
-  word.style.display = "inline";
+  link.title = "View full entry";
+  container.style.visibility = "hidden";
 
   // Stop clicks inside the element from closing the window
   container.addEventListener("click", event => event.stopPropagation());
@@ -143,7 +113,6 @@ function createDefinitionElement() {
   });
   document.addEventListener("mousemove", 
     function (event) {
-      // console.log(event.target.tagName);
       if (!definitionIsHidden && definitionIsDragging) {
         event.stopPropagation();
         const x = event.pageX - mouseDownPosition.x;
@@ -153,8 +122,6 @@ function createDefinitionElement() {
       }
     }
   );
-
-
 
   // Update our global variable
   definitionElement = { container: container, word: word, span: span, definition: definition };
