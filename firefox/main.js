@@ -49,7 +49,6 @@ function createBookElement() {
  *    <div>
  *      <dl>
  *        <dt> WORD </dt> 
- *        <div></div>
  *        <span><a><svg>...</svg></a></span>
  *        <dd> DEF 1 </dd>
  *        <dd> DEF 2 </dd>
@@ -144,7 +143,7 @@ function fillDefinitionElement(message) {
    
     // Fill the existing definition element
     if (short.length == 0) {
-      definitionElement.word.innerText = "No short definition available, view full entry online"
+      definitionElement.word.innerText = "No short definition available, view full entry online";
     }
     else {
       definitionElement.word.innerText = word;
@@ -154,7 +153,6 @@ function fillDefinitionElement(message) {
         if (short.length > 1) {
           var def_number = document.createElement("b");
           def_number.innerText = `${index + 1}`;
-          def_number.style.marginRight = '1em';
           dd.appendChild(def_number);
           def_number.after(def);
         } else {

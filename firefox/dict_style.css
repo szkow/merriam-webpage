@@ -67,3 +67,7 @@
 .merriamswebpage-container dl dd {
   margin: 0 0 0 1em;
 }
+
+.merriamswebpage-container dl dd > b {
+  margin-right: 1em;
+}
