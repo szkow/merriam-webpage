@@ -10,7 +10,8 @@ window.addEventListener("load", function () {
   background_port.onMessage.addListener(fillPopup);
 
   // Load a random prompt
-  searchbar.placeholder = prompts[Math.floor(Math.random() * prompts.length)];
+  const date = new Date();
+  searchbar.placeholder = prompts[(date.getDate() - 1) % prompts.length];
 
   // Search callback
   searchbar.onkeypress = function(e) {
