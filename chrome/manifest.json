@@ -1,22 +1,23 @@
 {
   "manifest_version": 2,
   "name": "Merriam's Webpage",
-  "version": "1.2",
+  "version": "1.3",
 
   "description": "Allows you to easily look up words on webpages in Merriam-Webster's dictionary. Highlight a word and click the book icon to begin.",
 
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": [
-        "main.js"
-      ]
+      "js": [ "main.js" ],
+      "css": ["dict_style.css"]
     }
   ],
 
   "web_accessible_resources": [
     "book-solid.svg",
-    "chevron-circle-right-solid.svg"
+    "chevron-circle-right-solid.svg",
+    "ZillaSlab-Light.woff",
+    "ZillaSlab-SemiBold.woff"
   ],
 
   "background": {
@@ -31,6 +32,7 @@
 
   "permissions": [
     "contextMenus",
-    "activeTab"
+    "activeTab",
+    "storage"
   ]
 }
