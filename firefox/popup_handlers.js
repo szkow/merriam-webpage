@@ -25,7 +25,7 @@ window.addEventListener("load", function () {
 
   // Load search history
   browser.storage.local.get("merriamswebpage_history").then(function (history) {
-    if (history === undefined) {
+    if (history === undefined || Object.keys(history).length === 0) {
       search_history = [];
     }
     else {
