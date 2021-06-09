@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Merriam's Webpage",
-  "version": "1.2",
+  "version": "1.3",
   "developer": {
     "name": "April Roszkowski",
     "url": "https://github.com/szkow/merriam-webpage"
@@ -12,15 +12,16 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": [
-        "main.js"
-      ]
+      "js": [ "main.js" ],
+      "css": [ "dict_style.css" ]
     }
   ],
 
   "web_accessible_resources": [
     "book-solid.svg",
-    "chevron-circle-right-solid.svg"
+    "chevron-circle-right-solid.svg",
+    "ZillaSlab-Light.woff",
+    "ZillaSlab-SemiBold.woff"
   ],
 
   "background": {
@@ -35,6 +36,7 @@
 
   "permissions": [
     "contextMenus",
-    "activeTab"
+    "activeTab",
+    "storage"
   ]
 }
