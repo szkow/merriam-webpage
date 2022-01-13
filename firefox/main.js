@@ -133,7 +133,7 @@ function fillDefinitionElement(message) {
   var definitionList = container.firstChild;
 
   if (message.error) {
-    definitionElement.word.innerText = "Couldn't find matching entry :(";
+    definitionElement.word.innerText = "Couldn't find word";
     definitionElement.span.style.visibility = "hidden";
   } else {
     definitionElement.span.style.visibility = "inherit";
@@ -143,16 +143,18 @@ function fillDefinitionElement(message) {
    
     // Fill the existing definition element
     if (short.length == 0) {
-      definitionElement.word.innerText = "No short definition available, view full entry online";
+      definitionElement.word.innerText = "No short definition available, view full entry";
     }
     else {
       definitionElement.word.innerText = word;
       definitionElement.definition.innerText = short;
+      let draw_nums = short.every(def => def[0] != "—")
       short.forEach((def, index) => {
         var dd = document.createElement("dd");
         if (short.length > 1) {
           var def_number = document.createElement("b");
-          def_number.innerText = `${index + 1}`;
+          if (draw_nums)
+            def_number.innerText = `${index + 1}`;
           dd.appendChild(def_number);
           def_number.after(def);
         } else {
