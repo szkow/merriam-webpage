@@ -51,7 +51,7 @@ function fillPopup(message) {
 
   // Update the content
   if (message.error) {
-    headword.innerText = "Couldn't find matching entry :(";
+    headword.innerText = "Couldn't find matching entry";
     link.style.visibility = "hidden";
   } else {
     // Extract the content we need
@@ -70,18 +70,22 @@ function fillPopup(message) {
     }
     updateSearchHistory();
     
+    headword.innerText = word;
     if (short.length == 0) {
-      word.innerText = "No short definition available, view full entry online";
-    }
+      var dd = document.createElement("dd");
+      var bold = document.createElement("b");
+      bold.innerText = "No short definition available, see full entry";
+      dd.appendChild(bold);
+      definition_list.appendChild(dd)    }
     else {
       // Fill the existing definition element
-      headword.innerText = word;
-      // definitionElement.definition.innerText = short;
+      let draw_nums = short.every(def => def[0] != "—")
       short.forEach((def, index) => {
         var dd = document.createElement("dd");
         if (short.length > 1) {
           var bold = document.createElement("b");
-          bold.innerText = `${index + 1}`;
+          if (draw_nums)
+            bold.innerText = `${index + 1}`;
           dd.appendChild(bold);
           bold.after(def);
         } else {

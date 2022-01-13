@@ -22,15 +22,28 @@
   user-select: none;
 }
 
+@supports (backdrop-filter: blur(4px)) {
+  .merriamswebpage-container {
+    backdrop-filter: blur(4px);
+    background: rgba(255,255,255,0.45);
+  }
+}
+
+@supports not (backdrop-filter: blur(4px)) {
+  .merriamswebpage-container {
+    background: rgba(255, 255, 255, 0.8);
+  }
+}
+
 .merriamswebpage-container {
   font-family: Arial, Helvetica, sans-serif;
   font-weight: normal;
-  font-size: normal;
+  font-size: medium;
   cursor: move;
   position: absolute;
+  z-index: 9999;
   max-width: 30%;
   color: black;
-  background: rgba(255,255,255,0.45);
   backdrop-filter: blur(4px);
   border: solid black 1px;
   border-radius: 3px;
@@ -38,18 +51,15 @@
 }
 
 .merriamswebpage-container span {
-  font-size: normal;
-  width: 1em;
-  padding-left: 0.7em;
-  display: relative;
-}
-
-.merriamswebpage-container span > a {
-
+  font-size: x-large;
+  padding-left: 0.3em;
 }
 
 .merriamswebpage-container span > a > svg {
-  width: 1em;
+  font-size: inherit;
+  width: 0.7em;
+  vertical-align: middle;
+  padding-bottom: 0.2em;
 }
 
 .merriamswebpage-container dl {
