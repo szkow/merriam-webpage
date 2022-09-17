@@ -15,7 +15,7 @@ browser.runtime.onMessage.addListener(handleBookMessage);
 
 function onCreated() {
   if (browser.runtime.lastError) {
-    console.log(`Error: ${browser.runtime.lastError}`);
+    console.error(`Error: ${browser.runtime.lastError}`);
   } 
 }
 
@@ -39,16 +39,13 @@ browser.contextMenus.create({
 browser.contextMenus.onClicked.addListener((info, tab) => {
   switch (info.menuItemId) {
     case "log-selection":
-      console.log(info.selectionText);
-      break;
+      break; // This was just for debugging
     case "lookup-selection":
       // Preprocess selected text
       const word = info.selectionText.trim().split(' ')[0];
 
       // Perform the lookup
-      // console.log(`Looking up ${word}...`);
       merriamLookup(word, tab);
-      // console.log("done!");
       break;
   }
 });
