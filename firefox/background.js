@@ -1,5 +1,10 @@
 "use strict";
 
+let api_key;
+fetch("secrets.json")
+  .then((response) => response.json())
+  .then((json) => api_key = json.mw_api_key)
+
 let popup_port;
 browser.runtime.onConnect.addListener(function(port) {
   popup_port = port
@@ -46,7 +51,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
 
 // Makes an HTTP request to Merriam-Webster's API
 function merriamLookup(word, tab) {
-  fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=7c41540c-3178-41c3-838c-216c402fd175`).then(response => response.json()).catch(onError).then(response => sendEntry(response, tab));
+  fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=${api_key}`).then(response => response.json()).catch(onError).then(response => sendEntry(response, tab));
 }
 
 // Takes in a JSON object which is the dictionary entry for the selected word
