@@ -80,7 +80,7 @@ function handleBookMessage(message) {
 }
 
 function handlePopupMessage(message) {
-  fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${message.headword}?key=7c41540c-3178-41c3-838c-216c402fd175`).then(response => response.json()).catch(onError).then(response => {
+  fetch(`https://dictionaryapi.com/api/v3/references/collegiate/json/${message.headword}?key=${api_key}`).then(response => response.json()).catch(onError).then(response => {
     var foundWord;
     var dictEntry;
     // console.log(response);
