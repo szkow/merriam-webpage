@@ -4,6 +4,10 @@ A simple word look-up extension for Firefox and Chrome. When highlighting a word
 
 Found on the [Chrome webstore](https://chrome.google.com/webstore/detail/jndchalbfebjhgfllgdigdcfpocoahoe) or [AMO (Firefox)](https://addons.mozilla.org/en-US/firefox/addon/merriams-webpage/).
 
+## Where is the code?
+
+I split things out into a `chrome` and `firefox` branch. Switch to one of those.
+
 ## Usage
 
 The main use of this extension is looking up words found on web pages. When highlighting a single word on a page, a small book icon should pop up next to it. Clicking this will create a small window with the definition of the highlighted word. You can click and drag to move this definition around the screen if needed. Clicking anywhere else on the page will close the window. Note that on some sites, the book icon's location isn't always consistent (and on some pages the book doesn't show up at all!). In this case, you can right click with a word highlighted and select the "Look up word" option in the context menu.
